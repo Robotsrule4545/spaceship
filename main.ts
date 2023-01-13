@@ -1,5 +1,13 @@
-let mySpriteBullet: Sprite = null
+statusbars.onZero(StatusBarKind.Health, function (status) {
+    game.over(false, effects.starField)
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
+    playerbar.value += -1
+    otherSprite.destroy(effects.fire, 500)
+})
+let bulletfromplayer: Sprite = null
 let myEnemy: Sprite = null
+let playerbar: StatusBarSprite = null
 scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -123,7 +131,7 @@ scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     `)
 effects.starField.startScreenEffect()
-let mySprite = sprites.create(img`
+let myPlayer = sprites.create(img`
     . . . . . . . . . . . . . . . . 
     . . . . . . . . . . . . . . . . 
     . . . . . . . f f . . . . . . . 
@@ -141,37 +149,41 @@ let mySprite = sprites.create(img`
     . f c c c c c c c c c c c c f . 
     . f f f f f f f f f f f f f f . 
     `, SpriteKind.Player)
-mySprite.setPosition(75, 100)
-controller.moveSprite(mySprite, 100, 0)
-forever(function () {
-    pause(500)
-    myEnemy = sprites.createProjectileFromSprite(img`
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
-        `, mySprite, 0, 50)
+myPlayer.setPosition(75, 100)
+controller.moveSprite(myPlayer, 100, 0)
+playerbar = statusbars.create(20, 4, StatusBarKind.Health)
+playerbar.max = 5
+playerbar.value = 5
+playerbar.attachToSprite(myPlayer)
+game.onUpdateInterval(1000, function () {
+    myEnemy = sprites.create(img`
+        . f f f f f f f f f f f f f f . 
+        . f 5 5 5 5 5 5 5 5 5 5 5 5 f . 
+        . f 5 4 4 4 4 4 4 4 4 4 4 5 f . 
+        . . f 5 4 4 4 4 4 4 4 4 5 f . . 
+        . . f 5 4 4 b 4 4 b 4 4 5 f . . 
+        . . . f 5 b b b b b b 5 f . . . 
+        . . . f 5 8 b b b b 8 5 f . . . 
+        . . . . f 8 8 b b 8 8 f . . . . 
+        . . . . f 5 8 8 8 8 5 f . . . . 
+        . . . . . f 5 8 8 5 f . . . . . 
+        . . . . . f 5 4 4 5 f . . . . . 
+        . . . . . . f 5 5 f . . . . . . 
+        . . . . . . f 5 5 f . . . . . . 
+        . . . . . . . f f . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `, SpriteKind.Enemy)
+    myEnemy.setVelocity(0, 50)
     myEnemy.setFlag(SpriteFlag.AutoDestroy, true)
     myEnemy.setPosition(randint(0, 160), 0)
 })
 forever(function () {
     pause(500)
-    mySpriteBullet = sprites.createProjectileFromSprite(img`
+    bulletfromplayer = sprites.createProjectileFromSprite(img`
         5 5 
         5 5 
         5 5 
         5 5 
-        `, mySprite, 0, -50)
+        `, myPlayer, 0, -50)
 })
